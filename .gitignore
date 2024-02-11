@@ -1,0 +1,10 @@
+# stm32 keil c build output
+**/build
+**/Debug
+**/.vscode
+#for MDK-ARM IDE generated user files 
+*.uvgui*
+*.o*
+*.d*
+*.crf*
+**/OBJ
