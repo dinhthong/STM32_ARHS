@@ -36,9 +36,13 @@ float offset_gx,offset_gy,offset_gz;
 #include "dmpu6050.h"
 void IMU_init(void)
 {
+		#if 0
+		/*
+			IO I2C init??
+		*/
     GPIO_InitTypeDef GPIO_InitStructure;
 
-	    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+	  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
 
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10 | GPIO_Pin_11;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
@@ -46,11 +50,14 @@ void IMU_init(void)
 	  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
 	  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
 	  GPIO_Init(GPIOB, &GPIO_InitStructure);
-
+		#ifndef HMC5883
+		HMC5883L_SetUp();
+		#endif
+		#endif
 		MPU_I2C_Configuration();  
 		MPU6050_Initialize();
-	delay_ms(20);
-	Initialize_Q();
+		delay_ms(20);
+		Initialize_Q();
 }
 
 /**************************??????********************************************
@@ -200,6 +207,18 @@ float acc[9];
   q_ahrs[3] = cos(roll / 2) * cos(pitch / 2) * sin(yaw / 2) - sin(roll / 2) * sin(pitch / 2) * cos(yaw / 2);
 }
 
+/**
+ * @brief FreeAHRS sensor fusion algorithm. which only requires only data from MPU6050 and HMC5883 - 9 DOF
+ * @param
+	 angular velocity
+	 accelerometer
+	 magnetometer
+ * @return
+	 fused quaternion values
+ * @author thongnd 
+ * @update_date: 2024.02.11
+ */
+
 #define Kp 3.0f    
 #define Ki 0.03f  
 void IMU_AHRSupdate(float* q_update, volatile float gx, volatile float gy, volatile float gz, volatile float ax, volatile float ay, volatile float az, volatile float mx, volatile float my, volatile float mz)
@@ -260,10 +279,16 @@ void IMU_AHRSupdate(float* q_update, volatile float gx, volatile float gy, volat
 	q_update[2] = temp2 * norm;
 	q_update[3] = temp3 * norm;
 }
-/*
 
-*/
+/**
+ * @brief FreeAHRS sensor fusion algorithm. which only requires only data from MPU6050 - 6 DOF
+ * @param
 
+ * @return
+
+ * @author thongnd 
+ * @update_date: 2024.02.11
+ */
 #define twoKpDef  (1.0f ) 
 #define twoKiDef  (0.2f) 
 
@@ -329,7 +354,7 @@ void FreeIMU_AHRSupdate(float* q_update, volatile float gx, volatile float gy, v
 void IMU_getQ(float *q,volatile float IMU_values[9])
 {
 
-#if 0
+#ifndef HMC5883
 	IMU_AHRSupdate(q, IMU_values[3] * M_PI / 180, IMU_values[4] * M_PI / 180, IMU_values[5] * M_PI / 180,
 		       IMU_values[0], IMU_values[1], IMU_values[2], IMU_values[6], IMU_values[7], IMU_values[8]);
 #else

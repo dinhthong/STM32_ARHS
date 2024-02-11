@@ -10,11 +10,15 @@
 #ifndef __common_H
 #define __common_H
 //#define IMU_lib "IMU_AHRS.h"
-#include "IOI2C.h"
+// define sensor
+//#define HMC5883
 
+#include "IOI2C.h"
 #include "delay.h"
 #include "MPU6050.h"
+//#ifndef HMC5883
 #include "HMC5883L.h"
+//#endif
 #include "ms5611.h"
 #include "report.h"
 #include "IMU_AHRS.h"
