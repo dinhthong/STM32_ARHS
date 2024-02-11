@@ -40,6 +40,11 @@ float absoluteAltitude,realTemperature;
 //float rpy_normal[3];
 float rpy[3]; //yaw pitch roll
 float rate_rpy[3];
+
+//uint16_t ch[5];
+float roll_offset = 0.577f, pitch_offset = 3.4065f;  
+extern float offset_gx,offset_gy,offset_gz;
+
 int main(void)
 {
 	uint32_t loop_4ms;
@@ -83,10 +88,24 @@ int main(void)
 	Initial_System_Timer();  
 	
 	IMU_init();
-	Initialize_Q();	
+		//Initialize_Q();	
+	    rpy[0] = rpy[1] = rpy[2] = rate_rpy[0] = rate_rpy[1] = rate_rpy[2] = 55.55f; //d?c giá tr?lúc calips  
+	 uint16_t j;
+    while (fabs(rate_rpy[0]) > 0.15f || fabs(rate_rpy[1]) > 0.15f || fabs(rate_rpy[2]) > 0.25f)
+		{
+				MPU6050_Calculate_Gyro_Offset(&offset_gx, &offset_gy, &offset_gz, 1000);
+				dt = 0.004;
+				rpy[0] = rpy[1] = rpy[2] = 0.0f;
+				for (j=0; j <= 200; j++){
+					IMU_getAttitude(rpy, rate_rpy);
+					delay_ms(4);
+				}
+	  }
+		
 
-	begin();
-	referencePressure = readPressure(0);
+
+//	begin();
+//	referencePressure = readPressure(0);
 
 	while(1)
 	{
@@ -97,7 +116,7 @@ int main(void)
 		IMU_getAttitude(rpy,rate_rpy);
 		//IMU_getRPY_normal(rpy_normal);
 
-		get_Baro();
+		//get_Baro();
 		 while((micros() - loop_4ms )< 4000) {};
         dt=(micros()-loop_4ms)*0.000001;
         loop_4ms= micros();

@@ -313,7 +313,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>0</Optim>
+            <Optim>1</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>0</OneElfS>
@@ -325,7 +325,7 @@
             <wLevel>0</wLevel>
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
-            <uC99>0</uC99>
+            <uC99>1</uC99>
             <uGnu>0</uGnu>
             <useXO>0</useXO>
             <v6Lang>1</v6Lang>
@@ -529,11 +529,6 @@
               <FilePath>..\HardWareDriver\Math\Fmath.c</FilePath>
             </File>
             <File>
-              <FileName>MPU6050.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HardWareDriver\MPU6050\MPU6050.c</FilePath>
-            </File>
-            <File>
               <FileName>IOI2C.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\HardWareDriver\Service\IOI2C.c</FilePath>
@@ -552,6 +547,11 @@
               <FileName>IMU_AHRS.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\HardWareDriver\IMU\IMU_AHRS.c</FilePath>
+            </File>
+            <File>
+              <FileName>dmpu6050.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HardWareDriver\MPU6050\dmpu6050.c</FilePath>
             </File>
           </Files>
         </Group>

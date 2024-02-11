@@ -1,22 +1,21 @@
-/******************** (C) COPYRIGHT 2015 DUT ********************************
- * 作者    ：胡文博
- * 文件名  ：MPU6050.h
- * 描述    ：mpu6050驱动头文件
- * 日期    ：2015/11/30 12:43:38
- * 联系方式：1461318172（qq）
-**********************************************************************************/
+#ifndef _MPU6050_H_
+#define _MPU6050_H_
 
-#ifndef __MPU6050_H
-#define __MPU6050_H
+#ifdef __cplusplus
+ extern "C" {
+#endif 
 
+ /* Includes */
+#include<stdbool.h> 
+#include<stdint.h> 
 #include "stm32f4xx.h"
-#include "delay.h"
+#define TRUE 1
+#define FALSE 0
+#define MPU6050_I2C  I2C1
 
-#define devAddr  0xD0
-
-//#define MPU6050_ADDRESS_AD0_LOW     0x68 // address pin low (GND), default for InvenSense evaluation board
-//#define MPU6050_ADDRESS_AD0_HIGH    0x69 // address pin high (VCC)
-//#define MPU6050_DEFAULT_ADDRESS     MPU6050_ADDRESS_AD0_LOW
+#define MPU6050_ADDRESS_AD0_LOW     0x68 // address pin low (GND), default for InvenSense evaluation board
+#define MPU6050_ADDRESS_AD0_HIGH    0x69 // address pin high (VCC)
+#define MPU6050_DEFAULT_ADDRESS     (MPU6050_ADDRESS_AD0_LOW<<1)
 
 #define MPU6050_RA_XG_OFFS_TC       0x00 //[7] PWR_MODE, [6:1] XG_OFFS_TC, [0] OTP_BNK_VLD
 #define MPU6050_RA_YG_OFFS_TC       0x01 //[7] PWR_MODE, [6:1] YG_OFFS_TC, [0] OTP_BNK_VLD
@@ -278,8 +277,7 @@
 #define MPU6050_INTERRUPT_DMP_INT_BIT       1
 #define MPU6050_INTERRUPT_DATA_RDY_BIT      0
 
-// TODO: figure out what these actually do
-// UMPL source code is not very obivous
+// TODO: Need to work on DMP related things
 #define MPU6050_DMPINT_5_BIT            5
 #define MPU6050_DMPINT_4_BIT            4
 #define MPU6050_DMPINT_3_BIT            3
@@ -364,32 +362,39 @@
 #define MPU6050_WHO_AM_I_BIT        6
 #define MPU6050_WHO_AM_I_LENGTH     6
 
+#define MPU6050_DMP_MEMORY_BANKS        8
+#define MPU6050_DMP_MEMORY_BANK_SIZE    256
+#define MPU6050_DMP_MEMORY_CHUNK_SIZE   16
 
-//MPU6050内部低通滤波设置
 
-//#define MPU6050_DLPF  MPU6050_DLPF_BW_256 		//256Hz低通滤波
-//#define MPU6050_DLPF  MPU6050_DLPF_BW_188 		//188Hz低通滤波
-//#define MPU6050_DLPF  MPU6050_DLPF_BW_98	  		//98Hz低通滤波
-#define MPU6050_DLPF  MPU6050_DLPF_BW_42 			//42Hz低通滤波
-//#define MPU6050_DLPF  MPU6050_DLPF_BW_20 			//20Hz低通滤波
-//#define MPU6050_DLPF  MPU6050_DLPF_BW_10  	  //10Hz低通滤波
-//#define MPU6050_DLPF  MPU6050_DLPF_BW_5 			//5Hz低通滤波
+void MPU6050_Initialize(void);
+bool MPU6050_TestConnection(void);
 
-extern float Acc1G_Values;
-extern int16_t Gyro_ADC[3], ACC_ADC[3];
+// GYRO_CONFIG register
+uint8_t MPU6050_GetFullScaleGyroRange(void);
+void MPU6050_SetFullScaleGyroRange(uint8_t range);
+// ACCEL_CONFIG register
+uint8_t MPU6050_GetFullScaleAccelRange(void);
+void MPU6050_SetFullScaleAccelRange(uint8_t range);
 
-//供外部调用的API
-void MPU6050_initialize(void); //初始化
-uint8_t MPU6050_testConnection(void); //通过读ID 检测MPU6050是否存在
+// PWR_MGMT_1 register
+bool MPU6050_GetSleepModeStatus(void);
+void MPU6050_SetSleepModeStatus(FunctionalState NewState);
+void MPU6050_SetClockSource(uint8_t source);
+// WHO_AM_I register
+uint8_t MPU6050_GetDeviceID(void);
+void MPU_I2C_Configuration(void);
+void MPU6050_GetRawAccelTempGyro(s16* AccelGyro);
 
-//读取ADC值
+void MPU6050_WriteBits(uint8_t slaveAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t data);
+void MPU6050_WriteBit(uint8_t slaveAddr, uint8_t regAddr, uint8_t bitNum, uint8_t data);
+void MPU6050_ReadBits(uint8_t slaveAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t *data); 
+void MPU6050_ReadBit(uint8_t slaveAddr, uint8_t regAddr, uint8_t bitNum, uint8_t *data);
+
+//void MPU6050_I2C_Init();
+void MPU6050_I2C_ByteWrite(u8 slaveAddr, u8* pBuffer, u8 writeAddr);
+void MPU6050_I2C_BufferRead(u8 slaveAddr,u8* pBuffer, u8 readAddr, u16 NumByteToRead);
 void MPU6050_getMotion6(int16_t *ax, int16_t *ay, int16_t *az, int16_t *gx, int16_t *gy, int16_t *gz);
-//读取最近的ADC 转换结果
-//void MPU6050_getlastMotion6(int16_t *ax, int16_t *ay,
-//			    int16_t *az, int16_t *gx, int16_t *gy, int16_t *gz);
-uint8_t MPU6050_getDeviceID(void); //读取MPU6050的ID
-//void MPU6050_InitGyro_Offset(void);//初始化陀螺仪偏置
-void MPU6050_Calculate_Gyro_Offset(float *gx_offset,float *gy_offset,float *gz_offset,uint16_t steps);
-void Write_Gyro_Offset(int16_t GX_offset,int16_t GY_offset,int16_t GZ_offset);
-#endif
 
+void MPU6050_Calculate_Gyro_Offset(float *gx_offset,float *gy_offset,float *gz_offset, uint16_t steps);
+#endif /* __MPU6050_H */
